@@ -1,11 +1,9 @@
 node_modules
 dist
 dist-ssr
-*.local
-.env
-.env.*
-!.env.example
 *.log
 .DS_Store
 .vite
 .vercel
+.env*
+!.env.example
