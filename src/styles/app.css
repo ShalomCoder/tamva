@@ -1,0 +1,178 @@
+/* ==========================================================================
+   TAMVA React app additions — built on top of the ported design system.
+   ========================================================================== */
+
+/* ---------- Generic badge tones ---------- */
+.badge-tone-low { color: var(--risk-low); background: var(--risk-low-bg); }
+.badge-tone-medium { color: var(--risk-medium); background: var(--risk-medium-bg); }
+.badge-tone-high { color: var(--risk-high); background: var(--risk-high-bg); }
+.badge-tone-info { color: var(--info); background: var(--info-bg); }
+.badge-tone-purple { color: var(--purple); background: var(--purple-bg); }
+.badge-tone-neutral { color: var(--text-secondary); background: var(--surface-secondary); }
+
+/* ---------- Distribution bars ---------- */
+.bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-secondary);
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width var(--duration-base) var(--ease);
+}
+
+/* ---------- Detail layout ---------- */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+.detail-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px 24px;
+  margin: 0;
+}
+.detail-item { min-width: 0; }
+.detail-item dt {
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.detail-item dd { margin: 0; word-break: break-word; }
+
+/* ---------- Filter bar fields ---------- */
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.filter-field .filter-select { min-width: 160px; }
+
+/* ---------- Forms ---------- */
+.stack-form { display: flex; flex-direction: column; gap: 14px; }
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
+.form-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+.form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.form-input--mono { font-family: var(--font-mono); font-size: var(--text-sm); }
+.form-error { color: var(--risk-high); font-size: var(--text-xs); }
+.form-help { color: var(--text-muted); font-size: var(--text-xs); }
+
+/* ---------- JSON tree ---------- */
+.json-tree {
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.json-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) 1fr;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.json-key { color: var(--text-muted); }
+.json-val { word-break: break-word; }
+.json-node { padding: 2px 0; }
+.json-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  width: 100%;
+  text-align: left;
+  color: var(--text-primary);
+}
+.json-children {
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
+  margin-left: 7px;
+}
+
+/* ---------- One-time secret reveal ---------- */
+.reveal-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  background: var(--surface-secondary);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  word-break: break-all;
+}
+.reveal-box code { font-family: var(--font-mono); font-size: var(--text-sm); }
+
+/* ---------- Misc spacing helpers ---------- */
+.section-stack { display: flex; flex-direction: column; gap: 16px; }
+.card + .card { margin-top: 16px; }
+.table-card .card-header { border-bottom: 1px solid var(--border); }
+
+/* ---------- Analytics / API reference ---------- */
+.endpoint-row {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.endpoint-row:last-child { border-bottom: none; }
+.method-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 6px;
+  padding: 4px 6px;
+  letter-spacing: 0.03em;
+}
+.method-GET { color: var(--info); background: var(--info-bg); }
+.method-POST { color: var(--risk-low); background: var(--risk-low-bg); }
+.method-PATCH { color: var(--risk-medium); background: var(--risk-medium-bg); }
+.method-DELETE { color: var(--risk-high); background: var(--risk-high-bg); }
+.path-mono { font-family: var(--font-mono); font-size: var(--text-sm); }
+
+/* ---------- SVG charts ---------- */
+.svg-chart { display: flex; flex-direction: column; gap: 6px; }
+.svg-chart svg { flex: 1; min-height: 0; }
+.svg-chart__labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text-muted);
+  overflow: hidden;
+}
+.svg-chart__labels span { flex: 1; text-align: center; white-space: nowrap; }
+
+/* ---------- Auth additions ---------- */
+.auth-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--risk-high-bg);
+  color: var(--risk-high);
+  font-size: var(--text-sm);
+  margin-bottom: 16px;
+}
+.auth-link { color: var(--primary); font-weight: 600; }
