@@ -5,6 +5,14 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/how-tamva-works",
+      "destination": "/how-tamva-works/index.html"
+    },
+    {
+      "source": "/how-tamva-works/",
+      "destination": "/how-tamva-works/index.html"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://tamva.onrender.com/:path*"
     }

@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How TAMVA decides · TAMVA Trust Platform</title>
+    <meta
+      name="description"
+      content="A plain-English explanation of how TAMVA turns transaction facts into an approve, review or block decision — deterministically, without an AI or ML model."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #00b176;
+        --primary-hover: #009b68;
+        --primary-light: #e6f8f2;
+        --background: #f4f6f8;
+        --surface: #ffffff;
+        --surface-secondary: #f8fafc;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --text-muted: #94a3b8;
+        --border: #e2e8f0;
+        --risk-low: #00b176;
+        --risk-low-bg: #e8f8f2;
+        --risk-medium: #f59e0b;
+        --risk-medium-bg: #fff7e6;
+        --risk-high: #ef4444;
+        --risk-high-bg: #fef2f2;
+        --info: #3b82f6;
+        --info-bg: #eff6ff;
+        --purple: #8b5cf6;
+        --purple-bg: #f5f3ff;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.05);
+        --shadow-hover: 0 4px 16px rgba(15, 23, 42, 0.08);
+        --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: var(--primary-hover); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+
+      /* ---------- top bar ---------- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        height: 64px;
+        padding: 0 24px;
+        background: rgba(255, 255, 255, 0.86);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand__mark {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--primary), #00d38f);
+        color: #fff;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+      .brand strong { display: block; font-size: 15px; letter-spacing: 0.3px; }
+      .brand small { display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; }
+      .topbar__nav { display: flex; align-items: center; gap: 8px; }
+      .topbar__nav a {
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+      .topbar__nav a:hover { background: var(--surface-secondary); text-decoration: none; color: var(--text-primary); }
+      .topbar__nav a.cta { background: var(--primary); color: #fff; }
+      .topbar__nav a.cta:hover { background: var(--primary-hover); color: #fff; }
+      @media (max-width: 720px) { .topbar__nav .hide-sm { display: none; } }
+
+      /* ---------- layout ---------- */
+      main { max-width: 960px; margin: 0 auto; padding: 48px 24px 96px; }
+
+      .eyebrow {
+        color: var(--primary-hover);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        margin: 0 0 12px;
+      }
+      h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.1; letter-spacing: -0.5px; margin: 0 0 16px; }
+      .lede { font-size: 18px; color: var(--text-secondary); max-width: 720px; margin: 0; }
+
+      section { margin-top: 56px; scroll-margin-top: 84px; }
+      h2 { font-size: 26px; letter-spacing: -0.3px; margin: 0 0 6px; }
+      h2 .num {
+        display: inline-grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+        border-radius: 9px;
+        background: var(--primary-light);
+        color: var(--primary-hover);
+        font-size: 15px;
+        vertical-align: 2px;
+      }
+      h3 { font-size: 17px; margin: 26px 0 8px; }
+      .section-sub { color: var(--text-secondary); margin: 0 0 22px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      li { margin-bottom: 8px; }
+
+      /* ---------- cards ---------- */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-card);
+        padding: 22px;
+        margin-bottom: 16px;
+      }
+      .grid { display: grid; gap: 16px; }
+      @media (min-width: 700px) { .grid--2 { grid-template-columns: 1fr 1fr; } .grid--3 { grid-template-columns: repeat(3, 1fr); } }
+
+      /* ---------- badges ---------- */
+      .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+      }
+      .tone-low { background: var(--risk-low-bg); color: #047857; }
+      .tone-medium { background: var(--risk-medium-bg); color: #b45309; }
+      .tone-high { background: var(--risk-high-bg); color: #b91c1c; }
+      .tone-info { background: var(--info-bg); color: #1d4ed8; }
+      .tone-purple { background: var(--purple-bg); color: #6d28d9; }
+
+      /* ---------- pipeline ---------- */
+      .steps { counter-reset: step; display: grid; gap: 12px; }
+      .step {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: 16px;
+        align-items: start;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 18px 20px;
+        box-shadow: var(--shadow-card);
+      }
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
+        font-weight: 700;
+      }
+      .step h3 { margin: 2px 0 4px; }
+      .step p { margin: 0; color: var(--text-secondary); }
+
+      /* ---------- tables ---------- */
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-card); }
+      th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      thead th { background: var(--surface-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); }
+      tbody tr:last-child td { border-bottom: none; }
+      td.pts { font-family: var(--font-mono); white-space: nowrap; }
+
+      /* ---------- score bands ---------- */
+      .bands { display: grid; gap: 10px; }
+      .band {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 14px 18px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+      }
+      .band strong { font-family: var(--font-mono); font-weight: 600; }
+      .band.low { background: var(--risk-low-bg); border-color: transparent; }
+      .band.medium { background: var(--risk-medium-bg); border-color: transparent; }
+      .band.high { background: var(--risk-high-bg); border-color: transparent; }
+      .band.critical { background: #fef2f2; border-color: var(--risk-high); }
+
+      /* ---------- callouts ---------- */
+      .callout {
+        display: flex;
+        gap: 14px;
+        padding: 16px 18px;
+        border-radius: var(--radius-md);
+        border-left: 4px solid var(--info);
+        background: var(--info-bg);
+        color: #1e3a8a;
+        margin: 16px 0;
+      }
+      .callout.warn { border-color: var(--risk-medium); background: var(--risk-medium-bg); color: #92400e; }
+      .callout strong { color: inherit; }
+
+      /* ---------- worked example ---------- */
+      .example { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-card); overflow: hidden; }
+      .example__head { padding: 18px 22px; background: var(--surface-secondary); border-bottom: 1px solid var(--border); }
+      .example__head h3 { margin: 0 0 4px; }
+      .example__head p { margin: 0; color: var(--text-secondary); font-size: 13.5px; }
+      .example__body { padding: 8px 22px 18px; }
+      .flag { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+      .flag:last-of-type { border-bottom: none; }
+      .flag__desc { color: var(--text-secondary); }
+      .flag__pts { font-family: var(--font-mono); font-weight: 600; white-space: nowrap; }
+      .total {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 12px;
+        padding: 16px 18px;
+        border-radius: var(--radius-sm);
+        background: var(--risk-medium-bg);
+        border: 1px solid rgba(245, 158, 11, 0.4);
+      }
+      .total .amount { font-family: var(--font-mono); font-size: 22px; font-weight: 700; }
+
+      .kpi-row { display: flex; flex-wrap: wrap; gap: 10px; }
+      .kpi {
+        flex: 1 1 140px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 14px 16px;
+      }
+      .kpi .label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; }
+      .kpi .value { font-family: var(--font-mono); font-size: 16px; margin-top: 4px; }
+
+      /* ---------- toc ---------- */
+      .toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+      .toc a {
+        padding: 7px 13px;
+        border-radius: 999px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+      .toc a:hover { border-color: var(--primary); color: var(--primary-hover); text-decoration: none; }
+
+      footer { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand__mark">TM</span>
+        <span>
+          <strong>TAMVA</strong>
+          <small>Trust Platform</small>
+        </span>
+      </a>
+      <nav class="topbar__nav">
+        <a class="hide-sm" href="/#/api-reference">API Reference</a>
+        <a class="cta" href="/">Open the console</a>
+      </nav>
+    </header>
+
+    <main>
+      <p class="eyebrow">Decisioning explained</p>
+      <h1>How TAMVA decides on a transaction</h1>
+      <p class="lede">
+        Every transaction is judged by a fixed, transparent scorecard — not a black box. TAMVA gathers the
+        facts it already has, runs a checklist of red flags, adds up their weights, and turns that number into
+        one of three actions: <strong>approve</strong>, <strong>review</strong>, or <strong>block</strong>.
+      </p>
+
+      <nav class="toc" aria-label="Contents">
+        <a href="#idea">The idea</a>
+        <a href="#facts">1 · Gather the facts</a>
+        <a href="#flags">2 · Run the checklist</a>
+        <a href="#score">3 · Add up the score</a>
+        <a href="#action">4 · Choose the action</a>
+        <a href="#example">Worked example</a>
+        <a href="#why">Why no AI/ML</a>
+        <a href="#tradeoffs">Trade-offs</a>
+      </nav>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section id="idea">
+        <h2><span class="num">0</span>The idea in one paragraph</h2>
+        <p class="section-sub">A rules engine, not a learned model.</p>
+        <p>
+          Imagine a seasoned fraud analyst with a laminated scorecard. They look at the transaction, look at what
+          they already know about the customer, and tick off any red flags they see. Each flag carries a fixed
+          number of points. When they're done, they add up the points and read off a verdict. The whole process
+          is written down, the same for every transaction, and can be replayed and explained line by line.
+        </p>
+        <p>
+          There is no training step, no probability, and no hidden weights. TAMVA doesn't "learn" from data at
+          runtime — it only <em>recalls</em> history (how much money moved, how often, over what period) and
+          compares it against thresholds that a human chose. That is what "without an AI or ML model" means here:
+          <strong>the intelligence lives entirely in expert-authored rules and thresholds.</strong>
+        </p>
+        <div class="callout">
+          <div>
+            <strong>Same inputs, same answer, every time.</strong> A given evaluation always produces the same
+            score and the same action, and it can always list exactly which flags fired and how much each
+            contributed. That property — determinism plus explainability — is the entire point.
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section id="facts">
+        <h2><span class="num">1</span>Gather the facts</h2>
+        <p class="section-sub">Before judging, TAMVA assembles a small "feature snapshot" about the moment.</p>
+        <div class="grid grid--2">
+          <div class="card">
+            <h3>About the transaction</h3>
+            <ul>
+              <li>The <strong>amount</strong> and its currency.</li>
+              <li>The <strong>channel</strong> (how it came in) and time of day.</li>
+              <li>The account it concerns and who it's for.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>About the customer's history</h3>
+            <ul>
+              <li>The current <strong>account balance</strong> and how <strong>old</strong> the account is.</li>
+              <li>How many transactions happened in the <strong>last 24 hours</strong> and <strong>7 days</strong>.</li>
+              <li>Total <strong>money in / money out over 90 days</strong>.</li>
+              <li>Whether there is <strong>any history at all</strong> ("thin file" detection).</li>
+            </ul>
+          </div>
+        </div>
+        <p>
+          All of the historical figures come from querying the ledger and transaction records that are already
+          stored. This is the only sense in which TAMVA has "memory" — it is a database lookup, not a model.
+        </p>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section id="flags">
+        <h2><span class="num">2</span>Run the red-flag checklist</h2>
+        <p class="section-sub">Every flag is a plain comparison. If it's true, it adds a fixed weight.</p>
+        <p>
+          The default engine ships with <strong>11 rules</strong> across six categories. Each rule has a severity,
+          and severity determines the points it contributes: <span class="badge tone-low">LOW = 10</span>
+          <span class="badge tone-medium">MEDIUM = 30</span>
+          <span class="badge tone-high">HIGH = 60</span>
+          <span class="badge tone-purple">CRITICAL = 100</span>.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>What it checks</th>
+                <th>Fires when</th>
+                <th>Weight</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="2">Amount</td>
+                <td>Amount above elevated threshold</td>
+                <td>amount ≥ 50,000</td>
+                <td class="pts"><span class="badge tone-high">HIGH · 60</span></td>
+              </tr>
+              <tr>
+                <td>Amount well above typical</td>
+                <td>5,000 ≤ amount &lt; 50,000</td>
+                <td class="pts"><span class="badge tone-medium">MEDIUM · 30</span></td>
+              </tr>
+              <tr>
+                <td rowspan="3">Balance</td>
+                <td>Insufficient balance coverage</td>
+                <td>amount &gt; balance, but ≤ 5× balance</td>
+                <td class="pts"><span class="badge tone-high">HIGH · 60</span></td>
+              </tr>
+              <tr>
+                <td>Critical balance coverage gap</td>
+                <td>amount &gt; 5× balance</td>
+                <td class="pts"><span class="badge tone-purple">CRITICAL · 100</span></td>
+              </tr>
+              <tr>
+                <td>Low balance safety margin</td>
+                <td>balance &lt; 100 and amount ≥ 500</td>
+                <td class="pts"><span class="badge tone-low">LOW · 10</span></td>
+              </tr>
+              <tr>
+                <td>Tenure</td>
+                <td>Newly opened account</td>
+                <td>account age &lt; 30 days</td>
+                <td class="pts"><span class="badge tone-medium">MEDIUM · 30</span></td>
+              </tr>
+              <tr>
+                <td>Velocity</td>
+                <td>Elevated 24h activity</td>
+                <td>≥ 10 transactions in 24h</td>
+                <td class="pts"><span class="badge tone-medium">MEDIUM · 30</span></td>
+              </tr>
+              <tr>
+                <td rowspan="3">Behavioural</td>
+                <td>Atypical versus 90-day inflows</td>
+                <td>amount &gt; 2× 90-day inflow</td>
+                <td class="pts"><span class="badge tone-high">HIGH · 60</span></td>
+              </tr>
+              <tr>
+                <td>Somewhat atypical versus history</td>
+                <td>amount &gt; 0.5× and ≤ 2× 90-day inflow</td>
+                <td class="pts"><span class="badge tone-medium">MEDIUM · 30</span></td>
+              </tr>
+              <tr>
+                <td>Off-hours activity</td>
+                <td>occurred between 00:00–05:00 UTC</td>
+                <td class="pts"><span class="badge tone-low">LOW · 10</span></td>
+              </tr>
+              <tr>
+                <td>Data quality</td>
+                <td>Thin ledger history</td>
+                <td>no transaction history for the customer</td>
+                <td class="pts"><span class="badge tone-low">LOW · 10</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout warn">
+          <div>
+            <strong>Flags are independent and cumulative.</strong> A single serious flag may not be enough on its
+            own — it's the combination that escalates a transaction, which is exactly how scorecards have worked
+            in banking for decades.
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section id="score">
+        <h2><span class="num">3</span>Add up the score</h2>
+        <p class="section-sub">Sum the weights of every flag that fired, then read the score band.</p>
+        <p>
+          The total is capped at 1,000 so the scale stays bounded. The resulting number is compared against four
+          bands calibrated to the checklist's reachable range:
+        </p>
+        <div class="bands">
+          <div class="band low"><span><strong>0 – 59</strong> &nbsp; LOW</span><span class="badge tone-low">calm</span></div>
+          <div class="band medium"><span><strong>60 – 140</strong> &nbsp; MEDIUM</span><span class="badge tone-medium">watch</span></div>
+          <div class="band high"><span><strong>141 – 250</strong> &nbsp; HIGH</span><span class="badge tone-high">elevated</span></div>
+          <div class="band critical"><span><strong>251 +</strong> &nbsp; CRITICAL</span><span class="badge tone-high">severe</span></div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section id="action">
+        <h2><span class="num">4</span>Choose the action</h2>
+        <p class="section-sub">The band maps to one of three decisions.</p>
+        <div class="grid grid--3">
+          <div class="card">
+            <p><span class="badge tone-low">LOW / MEDIUM</span></p>
+            <h3>Approve</h3>
+            <p class="section-sub" style="margin: 0">Allow the transaction to proceed. No human intervention.</p>
+          </div>
+          <div class="card">
+            <p><span class="badge tone-high">HIGH</span></p>
+            <h3>Review</h3>
+            <p class="section-sub" style="margin: 0">Hold for a human analyst, who sees the exact flags and score.</p>
+          </div>
+          <div class="card">
+            <p><span class="badge tone-purple">CRITICAL</span></p>
+            <h3>Block</h3>
+            <p class="section-sub" style="margin: 0">Reject the transaction outright.</p>
+          </div>
+        </div>
+        <p>
+          When a transaction lands in <strong>Review</strong> or <strong>Block</strong>, TAMVA also opens a
+          <strong>case</strong> automatically — with the score, the level, and the list of reason codes attached
+          as evidence — so nothing that needs attention falls through the cracks. Every evaluation, the feature
+          snapshot it used, and each individual signal are written down in a single all-or-nothing transaction,
+          and an event is published so other systems can react.
+        </p>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section id="example">
+        <h2>Worked example</h2>
+        <p class="section-sub">One transaction, walked through end to end.</p>
+
+        <div class="kpi-row" style="margin-bottom: 16px">
+          <div class="kpi"><div class="label">Amount</div><div class="value">60,000 GHS</div></div>
+          <div class="kpi"><div class="label">Balance</div><div class="value">20,000</div></div>
+          <div class="kpi"><div class="label">Account age</div><div class="value">10 days</div></div>
+          <div class="kpi"><div class="label">Txns / 24h</div><div class="value">12</div></div>
+          <div class="kpi"><div class="label">90d inflow</div><div class="value">25,000</div></div>
+          <div class="kpi"><div class="label">Local time</div><div class="value">02:00 UTC</div></div>
+        </div>
+
+        <div class="example">
+          <div class="example__head">
+            <h3>Flags that fire</h3>
+            <p>Each row is a comparison from the checklist above.</p>
+          </div>
+          <div class="example__body">
+            <div class="flag">
+              <span class="flag__desc">Amount ≥ 50,000 <span class="badge tone-high">HIGH</span></span>
+              <span class="flag__pts">+60</span>
+            </div>
+            <div class="flag">
+              <span class="flag__desc">Amount exceeds balance (within 5×) <span class="badge tone-high">HIGH</span></span>
+              <span class="flag__pts">+60</span>
+            </div>
+            <div class="flag">
+              <span class="flag__desc">Account younger than 30 days <span class="badge tone-medium">MEDIUM</span></span>
+              <span class="flag__pts">+30</span>
+            </div>
+            <div class="flag">
+              <span class="flag__desc">12 transactions in 24h <span class="badge tone-medium">MEDIUM</span></span>
+              <span class="flag__pts">+30</span>
+            </div>
+            <div class="flag">
+              <span class="flag__desc">Amount &gt; 2× 90-day inflow <span class="badge tone-high">HIGH</span></span>
+              <span class="flag__pts">+60</span>
+            </div>
+            <div class="flag">
+              <span class="flag__desc">Off-hours activity <span class="badge tone-low">LOW</span></span>
+              <span class="flag__pts">+10</span>
+            </div>
+            <div class="total">
+              <span>
+                <strong style="display: block">Total score</strong>
+                <span class="text-secondary" style="font-size: 13.5px">250 → HIGH band → <strong>Review</strong></span>
+              </span>
+              <span class="amount">250</span>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top: 14px">
+          Note how close this is to the next band: at <strong>251</strong> it would have been CRITICAL and
+          <strong>blocked</strong>. That is the cumulative scorecard working as designed — one flag rarely decides
+          alone, and a small change in the facts can tip the verdict.
+        </p>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section id="why">
+        <h2>Why do it without AI or ML?</h2>
+        <p class="section-sub">The properties that matter in financial risk are transparency and repeatability.</p>
+        <div class="grid grid--2">
+          <div class="card"><h3>Explainable by construction</h3><p style="margin: 0">Every decision can point to the exact flags and weights behind it. There's no "the model said so."</p></div>
+          <div class="card"><h3>Deterministic</h3><p style="margin: 0">Same inputs always yield the same score and action. No randomness, no retraining drift.</p></div>
+          <div class="card"><h3>Auditable</h3><p style="margin: 0">Rules, thresholds, ruleset version and policy version are recorded with each evaluation, so past decisions can be reconstructed.</p></div>
+          <div class="card"><h3>Tunable by people, not pipelines</h3><p style="margin: 0">To change behaviour you adjust a threshold or a weight — no data science, no GPU, no retraining cycle.</p></div>
+        </div>
+        <p>
+          This is also why the engine records which <strong>ruleset</strong>, <strong>model version</strong> and
+          <strong>decision policy</strong> produced a result. Today those point at the built-in baseline. The same
+          interface is designed so a financial institution can later supply its own ruleset or policy — and, if it
+          ever wants to, place a statistical or machine-learned model behind the exact same, still-explainable
+          contract.
+        </p>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section id="tradeoffs">
+        <h2>Trade-offs to keep in mind</h2>
+        <ul>
+          <li>
+            <strong>It only knows what someone thought to encode.</strong> If no rule covers a fraud pattern, the
+            engine is blind to it. Coverage improves by adding rules, not by feeding it more data.
+          </li>
+          <li>
+            <strong>Thresholds need periodic tuning.</strong> Amounts, velocities and ratios drift as a business
+            and its customers change, so weights and bands should be revisited against real outcomes.
+          </li>
+          <li>
+            <strong>Simple rules can be gamed.</strong> A determined actor who understands the checklist can stay
+            just under a threshold. Layered rules and cumulative scoring raise the cost of doing so.
+          </li>
+          <li>
+            <strong>Garbage in, garbage out.</strong> A "thin file" (no history) genuinely weakens the signal —
+            which is precisely why the engine flags thin files explicitly rather than silently treating them as
+            safe.
+          </li>
+        </ul>
+        <div class="callout">
+          <div>
+            <strong>Try it yourself.</strong> The live console lets you POST an evaluation and inspect the score,
+            the level, the decision, the feature snapshot and every signal that fired.
+            <a href="/#/api-reference">Open the API reference</a> or the <a href="/#/r/risk-evaluations">evaluations</a>
+            view to see it in action.
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>TAMVA Trust Platform · How decisions are made</span>
+        <span><a href="/">Back to the console</a></span>
+      </footer>
+    </main>
+  </body>
+</html>

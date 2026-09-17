@@ -101,6 +101,19 @@ export function AppShell() {
           ))}
         </nav>
         <div className="sidebar__footer">
+          <a
+            className="nav-item"
+            href="/how-tamva-works"
+            target="_blank"
+            rel="noreferrer"
+            style={{ marginBottom: 10 }}
+          >
+            <Icon name="book-open" size={18} />
+            <span>How TAMVA works</span>
+            <span className="text-muted" style={{ marginLeft: "auto", display: "inline-flex" }}>
+              <Icon name="external-link" size={13} />
+            </span>
+          </a>
           <div className="demo-notice">
             <Icon name="info" size={13} /> {env === "production" ? "Production workspace" : "Sandbox workspace"}
           </div>

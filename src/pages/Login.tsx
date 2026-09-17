@@ -195,6 +195,13 @@ export function LoginPage() {
           <p className="auth-legal">
             Need an account? <Link to="/register" className="auth-link">Register an institution</Link>.
           </p>
+          <p className="auth-legal">
+            New here?{" "}
+            <a href="/how-tamva-works" className="auth-link">
+              How TAMVA decides on a transaction
+            </a>
+            .
+          </p>
         </div>
       </section>
     </main>
