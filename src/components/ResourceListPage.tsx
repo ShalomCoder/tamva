@@ -205,6 +205,7 @@ export function ResourceListPage({ resource }: { resource: ResourceDef }) {
             columns={listDef?.columns}
             rowId={rowId}
             rowActions={rowActions}
+            expandable
             onRowClick={
               resource.detail
                 ? (row) => navigate(`${basePath(resource)}/${encodeURIComponent(rowId(row))}`)

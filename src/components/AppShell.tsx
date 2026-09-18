@@ -24,6 +24,14 @@ function useEnvironment(): [string, (v: string) => void] {
   return [env, update];
 }
 
+const DOCK_ITEMS = [
+  { to: "/", label: "Home", icon: "layout-dashboard" },
+  { to: "/analytics", label: "Analytics", icon: "bar-chart-3" },
+  { to: "/search", label: "Search", icon: "search" },
+  { to: "/api-reference", label: "API", icon: "code-2" },
+  { to: "/settings", label: "Settings", icon: "settings" },
+];
+
 export function AppShell() {
   const auth = useAuth();
   const location = useLocation();
@@ -32,12 +40,27 @@ export function AppShell() {
   const [env, setEnv] = useEnvironment();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [cmdOpen, setCmdOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMenuOpen(false);
     setOpenDropdown(null);
+    setCmdOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "/" && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+      if (e.key === "Escape") setCmdOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -66,9 +89,24 @@ export function AppShell() {
     })).filter((g) => g.items.length > 0);
   }, [actor, auth]);
 
+  const suggestions = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    const all = groups.flatMap((g) => g.items.map((it) => ({ ...it, group: g.group })));
+    if (!needle) return all.slice(0, 12);
+    return all.filter((it) => `${it.label} ${it.key}`.toLowerCase().includes(needle)).slice(0, 12);
+  }, [groups, search]);
+
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (search.trim()) navigate(`/search?q=${encodeURIComponent(search.trim())}`);
+    if (search.trim()) {
+      navigate(`/search?q=${encodeURIComponent(search.trim())}`);
+      setCmdOpen(false);
+    }
+  }
+
+  function goAndClose(to: string) {
+    navigate(to);
+    setCmdOpen(false);
   }
 
   return (
@@ -82,7 +120,7 @@ export function AppShell() {
             <div className="tagline">Trust Platform</div>
           </div>
         </div>
-        <nav className="sidebar__nav">
+        <nav className="sidebar__nav" aria-label="Workspace navigation">
           {groups.map((g) => (
             <div className="nav-group" key={g.group}>
               <div className="nav-group__label">{g.group}</div>
@@ -106,7 +144,7 @@ export function AppShell() {
             href="/how-tamva-works"
             target="_blank"
             rel="noreferrer"
-            style={{ marginBottom: 10 }}
+            style={{ marginBottom: 6 }}
           >
             <Icon name="book-open" size={18} />
             <span>How TAMVA works</span>
@@ -115,29 +153,78 @@ export function AppShell() {
             </span>
           </a>
           <div className="demo-notice">
-            <Icon name="info" size={13} /> {env === "production" ? "Production workspace" : "Sandbox workspace"}
+            <span
+              className="signal"
+              style={{ color: env === "production" ? "var(--lime)" : "var(--amber)" }}
+            />
+            {env === "production" ? "Production workspace" : "Sandbox workspace"}
           </div>
         </div>
       </aside>
 
       <div className="main">
+        <div className={`cm-layer${cmdOpen ? " is-visible" : ""}`} onClick={() => setCmdOpen(false)} />
+
         <header className="topbar">
-          <div className="flex items-center gap-16">
+          <div className="flex items-center gap-16" style={{ minWidth: 0 }}>
             <button className="menu-toggle icon-btn" onClick={() => setMenuOpen(true)} aria-label="Open menu">
               <Icon name="menu" size={18} />
             </button>
-            <form onSubmit={submitSearch}>
+            <form
+              className={`cmd-surface${cmdOpen ? " is-open" : ""}`}
+              onSubmit={submitSearch}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) setCmdOpen(false);
+              }}
+              aria-label="Command search"
+            >
               <label className="topbar__search">
                 <Icon name="search" size={16} />
                 <input
+                  ref={searchRef}
                   type="search"
-                  placeholder="Search customers, transactions, cases…"
+                  placeholder="Search or jump…  press /"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onFocus={() => setCmdOpen(true)}
                 />
               </label>
+
+              {cmdOpen ? (
+                <div className="cmd-menu" role="listbox" aria-label="Quick navigation">
+                  <div className="cmd-menu__group-label">Search everything</div>
+                  <button type="submit" className="cmd-menu__item" role="option">
+                    <Icon name="search" size={15} />
+                    <span>
+                      Find <b>“{search.trim() || "…"}”</b> in customers, transactions, cases…
+                    </span>
+                    <kbd>↵</kbd>
+                  </button>
+                  {suggestions.map((item) => (
+                    <div key={item.key}>
+                      <button
+                        type="button"
+                        className="cmd-menu__item"
+                        role="option"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => goAndClose(item.to)}
+                      >
+                        <Icon name={item.icon} size={15} />
+                        <span>{item.label}</span>
+                        <span className="text-muted" style={{ fontFamily: "var(--font-mono)", fontSize: 10 }}>
+                          {item.to}
+                        </span>
+                      </button>
+                    </div>
+                  ))}
+                  <div className="cmd-menu__group-label" style={{ paddingBottom: 8 }}>
+                    <span className="text-muted">Press / anywhere to search · Esc to dismiss</span>
+                  </div>
+                </div>
+              ) : null}
             </form>
           </div>
+
           <div className="topbar__actions">
             <div className={`env-indicator ${env}`}>
               <span className="env-indicator__dot" />
@@ -214,6 +301,20 @@ export function AppShell() {
         <main className="content">
           <Outlet />
         </main>
+
+        <nav className="floating-dock" aria-label="Quick navigation">
+          {DOCK_ITEMS.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === "/"}
+              className={({ isActive }) => `floating-dock__item${isActive ? " active" : ""}`}
+            >
+              <Icon name={item.icon} size={18} />
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+        </nav>
       </div>
     </div>
   );

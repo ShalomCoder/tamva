@@ -72,6 +72,29 @@ function kpi(label: string, value: string | number, hint?: string, tone?: string
   );
 }
 
+function HeroReadout({
+  label,
+  value,
+  hint,
+  tone,
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+  tone?: string;
+}) {
+  return (
+    <div className="hero-readout" key={label}>
+      <div className="hero-readout__label">{label}</div>
+      <div className="hero-readout__row">
+        <span className="metric-value">{value}</span>
+        {tone ? <span className={`badge badge-tone-${tone}`}>{titleCase(tone)}</span> : null}
+      </div>
+      {hint ? <div className="hero-readout__hint">{hint}</div> : null}
+    </div>
+  );
+}
+
 function countBy(rows: Record<string, unknown>[], field: string): Array<[string, number]> {
   const map = new Map<string, number>();
   for (const row of rows) {
@@ -171,18 +194,35 @@ export function DashboardPage() {
         </div>
       ) : null}
 
-      <section className="kpi-grid">
+      <section className="dashboard-hero">
+        <div className="dashboard-hero__intro">
+          <span className="label" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <span className="signal" /> Live workspace
+          </span>
+          <h2 className="dashboard-hero__title">Institutional overview</h2>
+          <p className="dashboard-hero__sub">
+            Connected as <b>{who.split("@")[0]}</b> · reading {data.customers} customers, {data.accounts} accounts,{" "}
+            {data.cases.length} cases and the ledger in real time.
+          </p>
+        </div>
+        <div className="dashboard-hero__readouts">
+          <HeroReadout
+            label="Net flow"
+            value={formatAmount(inflow - outflow)}
+            hint="Inflow − outflow"
+            tone={inflow - outflow >= 0 ? "low" : "high"}
+          />
+          <HeroReadout label="Ledger inflow" value={formatAmount(inflow)} hint={`${data.ledger.length} entries`} tone="low" />
+          <HeroReadout label="Ledger outflow" value={formatAmount(outflow)} hint="Across all accounts" tone="high" />
+          <HeroReadout label="Evaluations" value={data.evaluations.length} hint="Risk decisions scored" tone="info" />
+        </div>
+      </section>
+
+      <section className="kpi-grid" style={{ marginTop: 8 }}>
         {kpi("Customers", data.customers, "In this institution")}
         {kpi("Accounts", data.accounts, "Active + closed")}
         {kpi("Open cases", openCases, `${data.cases.length} total`, openCases > 0 ? "medium" : "low")}
         {kpi("High-risk events", highRisk, `${data.riskEvents.length} evaluated`, highRisk > 0 ? "high" : "low")}
-      </section>
-
-      <section className="kpi-grid">
-        {kpi("Ledger inflow", formatAmount(inflow), `${data.ledger.length} entries`, "low")}
-        {kpi("Ledger outflow", formatAmount(outflow), "Across all accounts", "high")}
-        {kpi("Evaluations", data.evaluations.length, "Risk decisions scored", "info")}
-        {kpi("Net flow", formatAmount(inflow - outflow), "Inflow − outflow", inflow - outflow >= 0 ? "low" : "high")}
       </section>
 
       <section className="charts-grid" style={{ marginTop: 16 }}>
@@ -201,6 +241,7 @@ export function DashboardPage() {
           rows={data.riskEvents.slice(0, 6)}
           columns={["id", "customer_id", "risk_level", "decision", "score", "created_at"]}
           rowId={(row) => String(row.id)}
+          expandable
           onRowClick={(row) => navigate(`/r/risk-events/${row.id}`)}
         />
       </div>

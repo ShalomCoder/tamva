@@ -1,70 +1,165 @@
 /* ==========================================================================
-   TAMVA Design Tokens
-   Single source of truth for color, spacing, radius, shadow and type.
+   TAMVA FLOAT — Design Tokens
+   One source of truth. Nothing in the app hardcodes a value that belongs here.
    ========================================================================== */
 
 :root {
-  /* Brand */
-  --primary: #00B176;
-  --primary-hover: #009B68;
-  --primary-light: #E6F8F2;
+  /* ------------------------------------------------------------------ *
+   * Canvas — the environment everything floats in.
+   * ------------------------------------------------------------------ */
+  --canvas-0: #05070A;
+  --canvas-1: #090C10;
+  --canvas-2: #0D1116;
+  --background: var(--canvas-0);
 
-  /* Surfaces */
-  --background: #F4F6F8;
-  --surface: #FFFFFF;
-  --surface-secondary: #F8FAFC;
+  /* ------------------------------------------------------------------ *
+   * Accents — colour IS meaning, not decoration.
+   *   lime   = active / positive / verified / live
+   *   violet = analysis / computation / processing / interpretation
+   *   amber  = attention / uncertainty
+   *   red    = failure / danger / dangerous states only
+   * ------------------------------------------------------------------ */
+  --lime: #D8FF3E;
+  --lime-strong: #C8F02E;
+  --violet: #8B7CFF;
+  --violet-soft: #A99DFF;
+  --amber: #F5A524;
+  --red: #F2685B;
+  --red-soft: #FF8A80;
 
-  /* Text */
-  --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
+  --primary: var(--lime);
+  --primary-hover: var(--lime-strong);
+  --primary-light: rgba(216, 255, 62, 0.12);
 
-  /* Structure */
-  --border: #E2E8F0;
+  --info: var(--violet);
+  --info-bg: rgba(139, 124, 255, 0.14);
+  --purple: var(--violet);
+  --purple-bg: rgba(139, 124, 255, 0.14);
 
-  /* Risk semantics */
-  --risk-low: #00B176;
-  --risk-low-bg: #E8F8F2;
+  --risk-low: var(--lime);
+  --risk-low-bg: rgba(216, 255, 62, 0.11);
+  --risk-medium: var(--amber);
+  --risk-medium-bg: rgba(245, 165, 36, 0.12);
+  --risk-high: var(--red);
+  --risk-high-bg: rgba(242, 104, 91, 0.12);
 
-  --risk-medium: #F59E0B;
-  --risk-medium-bg: #FFF7E6;
+  /* ------------------------------------------------------------------ *
+   * Surfaces — translucent depth planes, not opaque cards.
+   * ------------------------------------------------------------------ */
+  --surface-0: rgba(255, 255, 255, 0.02);   /* ambient, nearly invisible */
+  --surface-1: rgba(255, 255, 255, 0.045);  /* resting surfaces */
+  --surface-2: rgba(255, 255, 255, 0.07);   /* elevated / interactive */
+  --surface-3: rgba(255, 255, 255, 0.1);    /* foreground / inspector */
 
-  --risk-high: #EF4444;
-  --risk-high-bg: #FEF2F2;
+  --surface: var(--surface-1);
+  --surface-secondary: rgba(255, 255, 255, 0.03);
+  --surface-inverse: #E9EDF0;
 
-  --info: #3B82F6;
-  --info-bg: #EFF6FF;
+  /* ------------------------------------------------------------------ *
+   * Text
+   * ------------------------------------------------------------------ */
+  --text-primary: #E9EDF1;
+  --text-secondary: #9AA4B1;
+  --text-muted: #5E6875;
+  --text-inverse: #0A0C08;
 
-  --purple: #8B5CF6;
-  --purple-bg: #F5F3FF;
+  /* ------------------------------------------------------------------ *
+   * Structure — hairline borders + edge lighting, never heavy outlines.
+   * ------------------------------------------------------------------ */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-soft: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --edge-light-strong: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
-  /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  /* ------------------------------------------------------------------ *
+   * Depth — layered, large, low-opacity shadows.
+   * ------------------------------------------------------------------ */
+  --shadow-1: 0 1px 1px rgba(0, 0, 0, 0.3), 0 10px 36px -16px rgba(0, 0, 0, 0.6), var(--edge-light);
+  --shadow-2: 0 2px 3px rgba(0, 0, 0, 0.35), 0 22px 60px -20px rgba(0, 0, 0, 0.7), var(--edge-light-strong);
+  --shadow-3: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 4px 8px rgba(0, 0, 0, 0.4),
+    0 48px 120px -28px rgba(0, 0, 0, 0.85), var(--edge-light-strong);
 
-  /* Shadow */
-  --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.05);
-  --shadow-hover: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-card: var(--shadow-1);
+  --shadow-hover: var(--shadow-2);
 
-  /* Typography */
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  /* Local glow keyed to accent (perceived as atmosphere, not neon). */
+  --glow-lime: 0 0 0 1px rgba(216, 255, 62, 0.35), 0 0 28px -6px rgba(216, 255, 62, 0.5);
+  --glow-violet: 0 0 0 1px rgba(139, 124, 255, 0.4), 0 0 28px -6px rgba(139, 124, 255, 0.5);
+  --glow-red: 0 0 0 1px rgba(242, 104, 91, 0.4), 0 0 28px -8px rgba(242, 104, 91, 0.55);
+
+  /* ------------------------------------------------------------------ *
+   * Blur — supports spatial separation, never the aesthetic itself.
+   * ------------------------------------------------------------------ */
+  --blur-xs: 4px;
+  --blur-sm: 10px;
+  --blur-md: 22px;
+  --blur-lg: 44px;
+
+  /* ------------------------------------------------------------------ *
+   * Radius — major surfaces generous, controls tight, tags tiny.
+   * ------------------------------------------------------------------ */
+  --radius-tag: 9px;
+  --radius-sm: 12px;   /* controls */
+  --radius-md: 18px;   /* secondary surfaces */
+  --radius-lg: 24px;   /* major floating surfaces */
+  --radius-xl: 28px;
+
+  /* ------------------------------------------------------------------ *
+   * Typography
+   * ------------------------------------------------------------------ */
+  --font-body: "Space Grotesk", "Inter", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
 
   --text-xs: 11px;
   --text-sm: 12.5px;
-  --text-base: 14px;
+  --text-base: 13.5px;
   --text-md: 15px;
-  --text-lg: 18px;
-  --text-xl: 22px;
-  --text-2xl: 28px;
+  --text-lg: 19px;
+  --text-xl: 26px;
+  --text-2xl: 36px;
+  --text-display: clamp(34px, 4.6vw, 56px);
 
-  /* Layout */
-  --sidebar-width: 252px;
+  /* ------------------------------------------------------------------ *
+   * Spacing — 4px rhythm scaled across the canvas.
+   * ------------------------------------------------------------------ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* ------------------------------------------------------------------ *
+   * Layout — the floating nav object.
+   * ------------------------------------------------------------------ */
+  --sidebar-width: 264px;
   --topbar-height: 64px;
+  --content-gutter: clamp(20px, 3.4vw, 44px);
 
-  /* Motion */
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --duration-fast: 120ms;
-  --duration-base: 180ms;
+  /* ------------------------------------------------------------------ *
+   * Motion — spring-physical, calm, purposeful.
+   * ------------------------------------------------------------------ */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);          /* calm settle */
+  --spring: cubic-bezier(0.22, 1.12, 0.34, 1);        /* FLOAT / LIFT settle */
+  --ease-out-soft: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-soft: cubic-bezier(0.4, 0, 1, 1);
+
+  --duration-fast: 150ms;
+  --duration-base: 260ms;
+  --duration-slow: 520ms;
+  --duration-trace: 1100ms;
+
+  /* legacy aliases consumed by a few inline styles */
+  --ease-fast: var(--ease);
+  --dur-float: var(--duration-base);
+
+  /* Depth model summary (used by engine layer classes) */
+  --depth-canvas: 0;
+  --depth-ambient: 1;
+  --depth-surface: 2;
+  --depth-elevated: 3;
+  --depth-foreground: 4;
 }

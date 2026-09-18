@@ -4,6 +4,7 @@ import { App } from "./App";
 
 import "./styles/variables.css";
 import "./styles/global.css";
+import "./styles/float.css";
 import "./styles/layout.css";
 import "./styles/components.css";
 import "./styles/tables.css";

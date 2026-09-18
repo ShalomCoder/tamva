@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { humanizeKey } from "../lib/format";
 import { FieldValue } from "./FieldValue";
 import { EmptyState } from "./StateBlock";
+import { JsonTree } from "./JsonTree";
 import { Icon } from "./Icon";
 
 export interface RowAction {
@@ -20,6 +21,8 @@ interface DataTableProps {
   emptyTitle?: string;
   emptyText?: string;
   pageSize?: number;
+  /** REVEAL: rows can unfold a floating JSON inspector. */
+  expandable?: boolean;
 }
 
 const PRIORITY = ["id", "name", "email", "status", "risk_level", "decision", "severity", "amount", "currency", "created_at"];
@@ -51,12 +54,23 @@ export function DataTable({
   emptyTitle,
   emptyText,
   pageSize = 25,
+  expandable = false,
 }: DataTableProps) {
   const [page, setPage] = useState(1);
+  const [open, setOpen] = useState<Set<string>>(new Set());
   const cols = useMemo(() => deriveColumns(rows, columns), [rows, columns]);
   const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
   const current = Math.min(page, totalPages);
   const view = rows.slice((current - 1) * pageSize, current * pageSize);
+
+  function toggle(id: string) {
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   if (rows.length === 0) {
     return <EmptyState title={emptyTitle ?? "No records"} text={emptyText ?? "Nothing matched this query."} />;
@@ -68,6 +82,7 @@ export function DataTable({
         <table className="data-table">
           <thead>
             <tr>
+              {expandable ? <th style={{ width: 1 }} aria-label="Inspect" /> : null}
               {cols.map((c) => (
                 <th key={c}>{humanizeKey(c)}</th>
               ))}
@@ -77,38 +92,19 @@ export function DataTable({
           <tbody>
             {view.map((row) => {
               const id = rowId(row);
+              const expanded = open.has(id);
               return (
-                <tr
+                <DataRowGroup
                   key={id}
-                  className={onRowClick ? "is-clickable" : undefined}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
-                >
-                  {cols.map((c) => (
-                    <td key={c}>
-                      <FieldValue field={c} value={row[c]} compact />
-                    </td>
-                  ))}
-                  {rowActions && rowActions.length > 0 ? (
-                    <td onClick={(e) => e.stopPropagation()}>
-                      <div className="flex gap-8" style={{ justifyContent: "flex-end" }}>
-                        {rowActions.map((a) => (
-                          <button
-                            key={a.key}
-                            className={`btn btn-sm ${a.danger ? "btn-danger" : "btn-secondary"}`}
-                            onClick={() => a.onClick(row)}
-                          >
-                            {a.label}
-                          </button>
-                        ))}
-                        {onRowClick ? (
-                          <button className="icon-btn" aria-label="Open" onClick={() => onRowClick(row)}>
-                            <Icon name="chevron-right" size={16} />
-                          </button>
-                        ) : null}
-                      </div>
-                    </td>
-                  ) : null}
-                </tr>
+                  row={row}
+                  cols={cols}
+                  id={id}
+                  expandable={expandable}
+                  expanded={expanded}
+                  onToggle={() => toggle(id)}
+                  onRowClick={onRowClick}
+                  rowActions={rowActions}
+                />
               );
             })}
           </tbody>
@@ -116,8 +112,8 @@ export function DataTable({
       </div>
       {rows.length > pageSize ? (
         <div className="pagination">
-          <span>
-            Showing {(current - 1) * pageSize + 1}–{Math.min(current * pageSize, rows.length)} of {rows.length}
+          <span className="text-mono">
+            {(current - 1) * pageSize + 1}–{Math.min(current * pageSize, rows.length)} / {rows.length}
           </span>
           <div className="pagination__controls">
             <button className="pagination__btn" disabled={current <= 1} onClick={() => setPage(current - 1)}>
@@ -132,4 +128,86 @@ export function DataTable({
       ) : null}
     </>
   );
+}
+
+function DataRowGroup({
+  row,
+  cols,
+  id,
+  expandable,
+  expanded,
+  onToggle,
+  onRowClick,
+  rowActions,
+}: {
+  row: Record<string, unknown>;
+  cols: string[];
+  id: string;
+  expandable: boolean;
+  expanded: boolean;
+  onToggle: () => void;
+  onRowClick?: (row: Record<string, unknown>) => void;
+  rowActions?: RowAction[];
+}) {
+  const rowClickable = !!onRowClick;
+  return (
+    <>
+      <tr
+        className={rowClickable ? "is-clickable" : undefined}
+        onClick={onRowClick ? () => onRowClick(row) : undefined}
+      >
+        {expandable ? (
+          <td onClick={(e) => e.stopPropagation()} style={{ width: 1 }}>
+            <button className={`expand-toggle${expanded ? " is-open" : ""}`} aria-label="Inspect row" onClick={onToggle}>
+              <Icon name={expanded ? "chevron-down" : "chevron-right"} size={14} />
+            </button>
+          </td>
+        ) : null}
+        {cols.map((c) => (
+          <td key={c} data-label={humanizeKey(c)}>
+            <FieldValue field={c} value={row[c]} compact />
+          </td>
+        ))}
+        {rowActions && rowActions.length > 0 ? (
+          <td onClick={(e) => e.stopPropagation()}>
+            <div className="flex gap-8" style={{ justifyContent: "flex-end" }}>
+              {rowActions.map((a) => (
+                <button
+                  key={a.key}
+                  className={`btn btn-sm ${a.danger ? "btn-danger" : "btn-secondary"}`}
+                  onClick={() => a.onClick(row)}
+                >
+                  {a.label}
+                </button>
+              ))}
+              {rowClickable ? (
+                <button className="icon-btn" aria-label="Open" onClick={() => onRowClick!(row)}>
+                  <Icon name="chevron-right" size={16} />
+                </button>
+              ) : null}
+            </div>
+          </td>
+        ) : null}
+      </tr>
+      {expanded ? (
+        <tr className="row-inspector">
+          <td colSpan={cols.length + extraCellSpan(expandable, rowActions)}>
+            <div className="row-inspector__inner">
+              <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+                <span className="label">Record</span>
+                <span className="text-mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                  {id}
+                </span>
+              </div>
+              <JsonTree data={row} />
+            </div>
+          </td>
+        </tr>
+      ) : null}
+    </>
+  );
+}
+
+function extraCellSpan(expandable: boolean, rowActions?: RowAction[]): number {
+  return (expandable ? 1 : 0) + (rowActions && rowActions.length > 0 ? 1 : 0);
 }
