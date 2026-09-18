@@ -209,10 +209,10 @@ export function LineChart({
             gap: 2,
             padding: "6px 10px",
             borderRadius: 10,
-            background: "rgba(13,17,22,.88)",
-            border: "1px solid var(--border)",
+            background: "rgba(255,255,255,.9)",
+            border: "1px solid rgba(31,43,61,.1)",
             backdropFilter: "blur(var(--blur-sm))",
-            boxShadow: "var(--shadow-2)",
+            boxShadow: "0 8px 24px -18px rgba(28,36,52,.25), inset 0 1px 0 rgba(255,255,255,.8)",
             whiteSpace: "nowrap",
           }}
         >

@@ -11,7 +11,7 @@
 
 html {
   background: var(--canvas-0);
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
@@ -218,14 +218,14 @@ table {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(31, 43, 61, 0.18);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(31, 43, 61, 0.3);
   background-clip: padding-box;
   border: 2px solid transparent;
 }

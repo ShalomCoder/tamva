@@ -1,109 +1,114 @@
 /* ==========================================================================
    TAMVA FLOAT — Design Tokens
    One source of truth. Nothing in the app hardcodes a value that belongs here.
+   Light glass system: soft daylight, translucent surfaces, calm colour.
    ========================================================================== */
 
 :root {
   /* ------------------------------------------------------------------ *
    * Canvas — the environment everything floats in.
    * ------------------------------------------------------------------ */
-  --canvas-0: #05070A;
-  --canvas-1: #090C10;
-  --canvas-2: #0D1116;
+  --canvas-0: #EDF0F5;
+  --canvas-1: #F5F7FB;
+  --canvas-2: #FFFFFF;
   --background: var(--canvas-0);
 
   /* ------------------------------------------------------------------ *
    * Accents — colour IS meaning, not decoration.
-   *   lime   = active / positive / verified / live
+   *   green  = active / positive / verified / live
    *   violet = analysis / computation / processing / interpretation
    *   amber  = attention / uncertainty
    *   red    = failure / danger / dangerous states only
    * ------------------------------------------------------------------ */
-  --lime: #D8FF3E;
-  --lime-strong: #C8F02E;
-  --violet: #8B7CFF;
-  --violet-soft: #A99DFF;
-  --amber: #F5A524;
-  --red: #F2685B;
-  --red-soft: #FF8A80;
+  --lime: #1F9D68;
+  --lime-strong: #178A5B;
+  --violet: #6C7BE0;
+  --violet-soft: #5E6BD0;
+  --amber: #B87E19;
+  --red: #D4574D;
+  --red-soft: #BF3E38;
 
   --primary: var(--lime);
   --primary-hover: var(--lime-strong);
-  --primary-light: rgba(216, 255, 62, 0.12);
+  --primary-light: rgba(31, 157, 104, 0.18);
 
   --info: var(--violet);
-  --info-bg: rgba(139, 124, 255, 0.14);
+  --info-bg: rgba(108, 123, 224, 0.12);
   --purple: var(--violet);
-  --purple-bg: rgba(139, 124, 255, 0.14);
+  --purple-bg: rgba(108, 123, 224, 0.12);
 
   --risk-low: var(--lime);
-  --risk-low-bg: rgba(216, 255, 62, 0.11);
+  --risk-low-bg: rgba(31, 157, 104, 0.1);
   --risk-medium: var(--amber);
-  --risk-medium-bg: rgba(245, 165, 36, 0.12);
+  --risk-medium-bg: rgba(184, 126, 25, 0.12);
   --risk-high: var(--red);
-  --risk-high-bg: rgba(242, 104, 91, 0.12);
+  --risk-high-bg: rgba(212, 87, 77, 0.1);
 
   /* ------------------------------------------------------------------ *
-   * Surfaces — translucent depth planes, not opaque cards.
+   * Surfaces — soft frosted glass, not flat panels.
    * ------------------------------------------------------------------ */
-  --surface-0: rgba(255, 255, 255, 0.02);   /* ambient, nearly invisible */
-  --surface-1: rgba(255, 255, 255, 0.045);  /* resting surfaces */
-  --surface-2: rgba(255, 255, 255, 0.07);   /* elevated / interactive */
-  --surface-3: rgba(255, 255, 255, 0.1);    /* foreground / inspector */
+  --surface-0: rgba(255, 255, 255, 0.45);
+  --surface-1: rgba(255, 255, 255, 0.62);
+  --surface-2: rgba(255, 255, 255, 0.78);
+  --surface-3: rgba(255, 255, 255, 0.92);
 
   --surface: var(--surface-1);
-  --surface-secondary: rgba(255, 255, 255, 0.03);
-  --surface-inverse: #E9EDF0;
+  --surface-secondary: rgba(31, 43, 61, 0.03);
+  --surface-inverse: #1A2433;
 
   /* ------------------------------------------------------------------ *
    * Text
    * ------------------------------------------------------------------ */
-  --text-primary: #E9EDF1;
-  --text-secondary: #9AA4B1;
-  --text-muted: #5E6875;
-  --text-inverse: #0A0C08;
+  --text-primary: #1B2432;
+  --text-secondary: #566175;
+  --text-muted: #8B95A6;
+  --text-inverse: #FFFFFF;
 
   /* ------------------------------------------------------------------ *
-   * Structure — hairline borders + edge lighting, never heavy outlines.
+   * Structure — soft hairlines + a top gloss, never heavy outlines.
    * ------------------------------------------------------------------ */
-  --border: rgba(255, 255, 255, 0.08);
-  --border-soft: rgba(255, 255, 255, 0.05);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --edge-light-strong: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --border: rgba(31, 43, 61, 0.1);
+  --border-soft: rgba(31, 43, 61, 0.07);
+  --border-strong: rgba(31, 43, 61, 0.16);
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  --edge-light-strong: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 
   /* ------------------------------------------------------------------ *
-   * Depth — layered, large, low-opacity shadows.
+   * Depth — soft, diffuse, daylight shadows.
    * ------------------------------------------------------------------ */
-  --shadow-1: 0 1px 1px rgba(0, 0, 0, 0.3), 0 10px 36px -16px rgba(0, 0, 0, 0.6), var(--edge-light);
-  --shadow-2: 0 2px 3px rgba(0, 0, 0, 0.35), 0 22px 60px -20px rgba(0, 0, 0, 0.7), var(--edge-light-strong);
-  --shadow-3: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 4px 8px rgba(0, 0, 0, 0.4),
-    0 48px 120px -28px rgba(0, 0, 0, 0.85), var(--edge-light-strong);
+  --shadow-1: 0 1px 2px rgba(28, 36, 52, 0.05), 0 12px 32px -18px rgba(28, 36, 52, 0.14), var(--edge-light);
+  --shadow-2: 0 2px 4px rgba(28, 36, 52, 0.06), 0 24px 56px -22px rgba(28, 36, 52, 0.2), var(--edge-light);
+  --shadow-3: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 4px 10px rgba(28, 36, 52, 0.07), 0 44px 100px -30px rgba(28, 36, 52, 0.28),
+    var(--edge-light-strong);
 
   --shadow-card: var(--shadow-1);
   --shadow-hover: var(--shadow-2);
 
-  /* Local glow keyed to accent (perceived as atmosphere, not neon). */
-  --glow-lime: 0 0 0 1px rgba(216, 255, 62, 0.35), 0 0 28px -6px rgba(216, 255, 62, 0.5);
-  --glow-violet: 0 0 0 1px rgba(139, 124, 255, 0.4), 0 0 28px -6px rgba(139, 124, 255, 0.5);
-  --glow-red: 0 0 0 1px rgba(242, 104, 91, 0.4), 0 0 28px -8px rgba(242, 104, 91, 0.55);
+  /* Local colour halo keyed to accent (soft, not neon). */
+  --glow-lime: 0 0 0 1px rgba(31, 157, 104, 0.22), 0 6px 18px -10px rgba(31, 157, 104, 0.42);
+  --glow-violet: 0 0 0 1px rgba(108, 123, 224, 0.24), 0 6px 18px -10px rgba(108, 123, 224, 0.42);
+  --glow-red: 0 0 0 1px rgba(212, 87, 77, 0.26), 0 6px 18px -10px rgba(212, 87, 77, 0.45);
 
   /* ------------------------------------------------------------------ *
-   * Blur — supports spatial separation, never the aesthetic itself.
+   * Blur — frosted glass separation.
    * ------------------------------------------------------------------ */
-  --blur-xs: 4px;
-  --blur-sm: 10px;
-  --blur-md: 22px;
-  --blur-lg: 44px;
+  --blur-xs: 6px;
+  --blur-sm: 16px;
+  --blur-md: 28px;
+  --blur-lg: 48px;
 
   /* ------------------------------------------------------------------ *
-   * Radius — major surfaces generous, controls tight, tags tiny.
+   * Radius — major surfaces generous, controls soft, tags tiny.
    * ------------------------------------------------------------------ */
-  --radius-tag: 9px;
-  --radius-sm: 12px;   /* controls */
+  --radius-tag: 10px;
+  --radius-sm: 14px;   /* controls */
   --radius-md: 18px;   /* secondary surfaces */
-  --radius-lg: 24px;   /* major floating surfaces */
+  --radius-lg: 22px;   /* major floating surfaces */
   --radius-xl: 28px;
+
+  /* numeric aliases used in a few engine classes */
+  --radius-18: var(--radius-md);
+  --radius-28: var(--radius-xl);
 
   /* ------------------------------------------------------------------ *
    * Typography
