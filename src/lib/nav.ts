@@ -20,7 +20,6 @@ const CUSTOM: Record<string, NavItem[]> = {
     { key: "analytics", label: "Analytics", icon: "bar-chart-3", to: "/analytics" },
   ],
   Platform: [{ key: "api-reference", label: "API Reference", icon: "code-2", to: "/api-reference" }],
-  Admin: [{ key: "admin", label: "Admin Dashboard", icon: "shield-check", to: "/admin", roles: ["INTERNAL_ADMIN"] }],
   System: [{ key: "settings", label: "Settings", icon: "settings", to: "/settings" }],
 };
 

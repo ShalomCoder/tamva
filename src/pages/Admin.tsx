@@ -64,8 +64,8 @@ export function AdminPage() {
   return (
     <>
       <PageHeader
-        title="Platform Administration"
-        subtitle="Cross-institution health of TAMVA — institutions, users, event dispatch and risk."
+        title="TAMVA Platform Console"
+        subtitle="A TAMVA-team-only workspace: cross-institution health, institutions, users, event dispatch and risk. Institution users never see this."
         actions={
           <button className="btn btn-secondary" onClick={() => reload()}>
             <Icon name="refresh-cw" size={15} /> Refresh
@@ -88,7 +88,7 @@ export function AdminPage() {
 
       <div className="card" style={{ marginTop: 16 }}>
         <div className="card-header">
-          <span className="card-title">Admin areas</span>
+          <span className="card-title">Platform consoles</span>
         </div>
         <div className="card-body grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
           {ADMIN_SECTIONS.map((s) => (

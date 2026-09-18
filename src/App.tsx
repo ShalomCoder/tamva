@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { AuthProvider, useAuth } from "./lib/auth";
 import { ToastProvider } from "./lib/toast";
 import { AppShell } from "./components/AppShell";
+import { PlatformShell } from "./components/PlatformShell";
 import { ResourceListPage } from "./components/ResourceListPage";
 import { ResourceDetailPage } from "./components/ResourceDetailPage";
 import { LoadingState } from "./components/StateBlock";
@@ -49,39 +50,45 @@ function ResourceListRoute() {
   return <ResourceListPage key={resource.key} resource={resource} />;
 }
 
+function AppRoutes() {
+  const auth = useAuth();
+  const isPlatformAdmin = auth.hasRole("INTERNAL_ADMIN");
+
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route element={<RequireAuth>{isPlatformAdmin ? <PlatformShell /> : <AppShell />}</RequireAuth>}>
+        <Route
+          path="/"
+          element={isPlatformAdmin ? <Navigate to="/admin" replace /> : <DashboardPage />}
+        />
+        <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/api-reference" element={<ApiReferencePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireRole roles={["INTERNAL_ADMIN"]}>
+              <AdminPage />
+            </RequireRole>
+          }
+        />
+        <Route path="/r/:key" element={<ResourceListRoute />} />
+        <Route path="/r/:key/:id" element={<ResourceDetailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
+  );
+}
+
 export function App() {
   return (
     <HashRouter>
       <AuthProvider>
         <ToastProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route
-              element={
-                <RequireAuth>
-                  <AppShell />
-                </RequireAuth>
-              }
-            >
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/api-reference" element={<ApiReferencePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route
-                path="/admin"
-                element={
-                  <RequireRole roles={["INTERNAL_ADMIN"]}>
-                    <AdminPage />
-                  </RequireRole>
-                }
-              />
-              <Route path="/r/:key" element={<ResourceListRoute />} />
-              <Route path="/r/:key/:id" element={<ResourceDetailPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
+          <AppRoutes />
         </ToastProvider>
       </AuthProvider>
     </HashRouter>
