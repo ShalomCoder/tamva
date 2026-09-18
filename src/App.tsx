@@ -14,6 +14,7 @@ import { AnalyticsPage } from "./pages/Analytics";
 import { ApiReferencePage } from "./pages/ApiReference";
 import { SearchPage } from "./pages/Search";
 import { SettingsPage } from "./pages/Settings";
+import { AdminPage } from "./pages/Admin";
 import { NotFoundPage } from "./pages/NotFound";
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -29,6 +30,14 @@ function RequireAuth({ children }: { children: ReactNode }) {
   }
   if (!auth.actor) {
     return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
+  }
+  return <>{children}</>;
+}
+
+function RequireRole({ roles, children }: { roles: string[]; children: ReactNode }) {
+  const auth = useAuth();
+  if (!auth.actor || !roles.some((r) => auth.actor?.roles?.includes(r))) {
+    return <Navigate to="/" replace />;
   }
   return <>{children}</>;
 }
@@ -60,6 +69,14 @@ export function App() {
               <Route path="/search" element={<SearchPage />} />
               <Route path="/api-reference" element={<ApiReferencePage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <RequireRole roles={["INTERNAL_ADMIN"]}>
+                    <AdminPage />
+                  </RequireRole>
+                }
+              />
               <Route path="/r/:key" element={<ResourceListRoute />} />
               <Route path="/r/:key/:id" element={<ResourceDetailPage />} />
               <Route path="*" element={<NotFoundPage />} />
